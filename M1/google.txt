@@ -1,0 +1,23 @@
+authtutorial6@gmail.com
+
+pass:
+di2zyJackal47
+
+
+474769427159-jk2ss58hl2jfgg8j1af7v51u5ntjdmad.apps.googleusercontent.com
+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 - GOOGLE_CLIENT_SECRET
+
+
+
+## Steps to Authorize Swagger UI:
+
+1. First, get your JWT token by visiting: http://localhost:3000/auth/token
+   - This endpoint will return JSON with your token like `{"token": "eyJhbGciOiJ..."}`
+
+2. In the Swagger UI page (http://localhost:3000/docs):
+   - Click the "Authorize" button at the top right (it looks like a lock)
+   - In the "bearerAuth (JWT)" section, enter your token in the format: `Bearer your_token_here`
+   - Click "Authorize" then "Close"
+
+3. Now your API requests should include the authentication token
+
