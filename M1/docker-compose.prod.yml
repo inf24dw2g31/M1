@@ -34,8 +34,8 @@ services:
       DATABASE_USER: dev_user
       DATABASE_PASSWORD: dev_password
       # Valores do Google OAuth e JWT diretos do .env
-      GOOGLE_CLIENT_ID: 474769427159-jk2ss58hl2jfgg8j1af7v51u5ntjdmad.apps.googleusercontent.com
-      GOOGLE_CLIENT_SECRET: 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
+      GOOGLE_CLIENT_ID: 
+      GOOGLE_CLIENT_SECRET: 
       JWT_SECRET: my_new_jwt_secret_key
       SESSION_SECRET: your_session_secret
     ports:
