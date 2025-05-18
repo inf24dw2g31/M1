@@ -1,40 +1,70 @@
-#Ligaçao a base de dados e NodeJS por DOCKERHUB
+# docker-compose.prod.yml
 version: '3.8'
+
 services:
   database:
-    image: diogoavteixeira1987/comercio-db:latest # Versao mais recente da imagem que esta no HUB , basta so trocar o TAG :Latest por outra e ele descarrega caso encontre
-    container_name: Comercio_DockerHub # Nome do Conteiner que ele vai dar quando criar em docker
+    image: rewindj/comercio-db-m1:v1
+    container_name: database
     environment:
-      MYSQL_ROOT_PASSWORD: 12345678 ## senha de acesso do root
-      MYSQL_DATABASE: COMERCIOPROD #Nome da base de dados
-      MYSQL_USER: prod_user # Nome do utilizador sem ser root
-      MYSQL_PASSWORD: prod_password # palavra pass
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: comerciodev
+      MYSQL_USER: dev_user
+      MYSQL_PASSWORD: dev_password
     volumes:
-      - mysql-data:/var/lib/mysql   # Volume onde os dados serao armazenados de forma presistente mysql-data , /var/lib/mysql - onde o mysql guarda as tabalas e os registros
+      - mysql-data:/var/lib/mysql
     ports:
-      - "3306:3306" # Porta que a base de dados vai utilizar
+      - "3306:3306"
+    networks:
+      - comercio-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "prod_user", "-pprod_password"] #Verifica se o mysql esta a funcionar , define o host como local host
-      interval: 10s # a cada 10 seg verifica o status do my sql
-      timeout: 5s #define o tempo maximo para responder antes de considerar erro
-      retries: 5 # Numero de tentivar para testar
-      start_period: 15s # define o periodo para validar que nao houve falhas
- 
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "prod_user", "-pprod_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: always
+
   nodejs:
-    image: diogoavteixeira1987/comercio-nodejc:v1 # imagem do NodeJs que vai fazer buscar a DOCKERHUB
-    container_name: Comercio-nodejs_DockerHub # Nome do conteiner que vai criar e, Docker
+    image: rewindj/comercio-nodejs-m1:v1
+    container_name: comercio-nodejs
     environment:
-      DATABASE_HOST: Comercio_DockerHub
+      DATABASE_HOST: database
       DATABASE_PORT: 3306
-      DATABASE_NAME: COMERCIOPROD
-      DATABASE_USER: prod_user
-      DATABASE_PASSWORD: prod_password
-    depends_on:
-      - database # Indica que o serviço mysql tem que iniciar primeiro que o Nodejs.
+      DATABASE_NAME: comerciodev
+      DATABASE_USER: dev_user
+      DATABASE_PASSWORD: dev_password
+      # Valores do Google OAuth e JWT diretos do .env
+      GOOGLE_CLIENT_ID: 474769427159-jk2ss58hl2jfgg8j1af7v51u5ntjdmad.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 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
+      JWT_SECRET: my_new_jwt_secret_key
+      SESSION_SECRET: your_session_secret
     ports:
-      - "8080:3000"
-    command: "npm start"
-     
+      - "3000:3000"
+    networks:
+      - comercio-network
+    depends_on:
+      database:
+        condition: service_healthy
+    command: >
+      sh -c "
+        echo 'Aguardando banco de dados inicializar completamente...'
+        for i in {1..30}; do
+          if mysql -h database -u prod_user -pprod_password -e 'SELECT 1' COMERCIOPROD > /dev/null 2>&1; then
+            echo 'Database está pronto para conexões!'
+            break
+          fi
+          echo 'Tentativa $$i: Database ainda não está pronto... aguardando 5 segundos'
+          sleep 5
+        done
+        echo 'Iniciando aplicação Node.js...'
+        npm start
+      "
+    restart: always
+
+networks:
+  comercio-network:
+    driver: bridge
+
 volumes:
-  mysql-data: #Define um volume que se gerido pelo Docker
-    driver: local #Drive local de padrao do Docker
+  mysql-data:
+    driver: local

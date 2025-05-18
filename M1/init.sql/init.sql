@@ -1,6 +1,11 @@
 DROP DATABASE IF EXISTS `comerciodev`;
 CREATE DATABASE `comerciodev`;
 
+-- Criação do utilizador e permissões para Docker
+CREATE USER IF NOT EXISTS 'dev_user'@'%' IDENTIFIED BY 'dev_password';
+GRANT ALL PRIVILEGES ON comerciodev.* TO 'dev_user'@'%';
+FLUSH PRIVILEGES;
+
 USE `comerciodev`;
 
 -- Tabela de Utilizadores
