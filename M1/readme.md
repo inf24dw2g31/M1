@@ -46,6 +46,9 @@ Este projeto, desenvolvido para o módulo **DW1**, utiliza uma base de dados de 
 
 ## 📂 Organização do Repositório
 - **M1** - Autenticação e Autorização
+- **Link DockerHub** - https://hub.docker.com/repositories/rewindj
+- **WorkBench - SQL ** - Aceder a base de dados Username dev_user : Password: dev_password
+- 
 
 ## 👥 Equipa
 - **Diogo Teixeira** - A044483@umaia.pt
